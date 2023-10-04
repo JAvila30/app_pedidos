@@ -50,7 +50,7 @@ public class RequestCreateActivity extends AppCompatActivity {
 
                     long result = productRepository.insertarPedido(txtNombre.getText().toString(),
                             Integer.parseInt(txtCantidad.getText().toString()) ,
-                            spinnerProducts.getSelectedItem().toString(),
+                            ((Product) spinnerProducts.getSelectedItem()).getName(),
                             txtOrdenante.getText().toString(),
                             txtContacto.getText().toString());
 
@@ -74,6 +74,9 @@ public class RequestCreateActivity extends AppCompatActivity {
 
     private void cleanFields(){
         txtNombre.setText("");
+        txtOrdenante.setText("");
+        txtContacto.setText("");
+        txtCantidad.setText(0);
     }
 
     private void fillSpinner(Spinner spinner){

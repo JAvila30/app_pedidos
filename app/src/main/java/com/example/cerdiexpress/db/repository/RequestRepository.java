@@ -2,9 +2,13 @@ package com.example.cerdiexpress.db.repository;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.example.cerdiexpress.db.DbHelper;
+import com.example.cerdiexpress.db.entities.Request;
+
+import java.util.ArrayList;
 
 public class RequestRepository extends DbHelper {
     Context context;
@@ -42,6 +46,33 @@ public class RequestRepository extends DbHelper {
         return resultId;
     }
 
+    public ArrayList<Request> getRequests(){
+        DbHelper dbHelper = new DbHelper(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
 
+        ArrayList<Request> products = new ArrayList<>();
+        Request request = null;
+        Cursor requestCursor = null;
+
+        requestCursor = db.rawQuery("SELECT * FROM pedido;", null);
+
+        if(requestCursor.moveToFirst()){
+
+            do{
+                request = new Request();
+                request.setId(requestCursor.getInt(0));
+                request.setNombre(requestCursor.getString(1));
+                request.setCantidad(requestCursor.getInt(2));
+                request.setContacto(requestCursor.getString(3));
+                request.setOrdenante(requestCursor.getString(4));
+                request.setProducto(requestCursor.getString(5));
+
+                products.add(request);
+            }while (requestCursor.moveToNext());
+        }
+
+        requestCursor.close();
+        return products;
+    }
 
 }

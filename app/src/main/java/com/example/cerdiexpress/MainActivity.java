@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.example.cerdiexpress.activities.CreateProductActivity;
 import com.example.cerdiexpress.activities.RequestCreateActivity;
 import com.example.cerdiexpress.adapter.recycle.RequestListAdapter;
+import com.example.cerdiexpress.adapter.recycle.RequestListAdapterCopy;
 import com.example.cerdiexpress.db.DbHelper;
 import com.example.cerdiexpress.db.entities.Request;
 import com.example.cerdiexpress.db.repository.RequestRepository;
@@ -42,9 +43,12 @@ public class MainActivity extends AppCompatActivity {
 
         requestArrayList = requestRepository.getRequests();
 
-        RequestListAdapter requestListAdapter = new RequestListAdapter(requestArrayList);
+        RequestListAdapterCopy requestListAdapter = new RequestListAdapterCopy(requestArrayList);
+
 
         listRequestView.setAdapter(requestListAdapter);
+
+        Toast.makeText(this, "Cantidad de pedidos: "+ requestArrayList.size(),Toast.LENGTH_SHORT).show();
 
         try {
             DbHelper dbHelper = new DbHelper(this);

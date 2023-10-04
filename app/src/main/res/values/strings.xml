@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">cerdiexpress</string>
+    <string name="button1">presioname</string>
+
+    <!-- TEXT FIELDS    -->
+    <string name="text_name">Nombre:</string>
+    <string name="text_product_name_description">Nombre del producto</string>
+    <string name="txt_contacto">Contacto:</string>
+    <string name="txt_ordenante">Ordenante:</string>
+    <string name="txt_cantidad">Cantidad:</string>
+    <string name="txt_producto">Producto:</string>
+    <!-- BUTTON FIELDS  -->
+    <string name="btn_create">Crear</string>
+    <string name="menu_producto">Nuevo producto 📃</string>
+    <string name="menu_pedido">Nuevo pedido ✔️</string>
+    <string name="title_activity_create_product">CreateProductActivity</string>
+</resources>

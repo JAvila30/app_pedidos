@@ -23,4 +23,8 @@
 
     <!-- Headers    -->
     <string name="h_pedidos">Pedidos</string>
+
+    <!-- Buttons   -->
+    <string name="btn_delete">eliminar</string>
+    <string name="btn_finish">finalizar</string>
 </resources>

@@ -51,12 +51,12 @@ public class RequestListAdapterCopy extends RecyclerView.Adapter<RecyclerView.Vi
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof HeaderViewHolder) {
             HeaderViewHolder requestViewHolder = (HeaderViewHolder) holder;
-            requestViewHolder.viewId.setText("ID");
-            requestViewHolder.viewCantidad.setText("CANTIDAD");
-            requestViewHolder.viewNombre.setText("NOMBRE");
-            requestViewHolder.viewContacto.setText("CONTACTO");
-            requestViewHolder.viewOrdenante.setText("ORDENANTE");
-            requestViewHolder.viewProducto.setText("PRODUCTO");
+//            requestViewHolder.viewId.setText("ID");
+//            requestViewHolder.viewCantidad.setText("CANTIDAD");
+//            requestViewHolder.viewNombre.setText("NOMBRE");
+//            requestViewHolder.viewContacto.setText("CONTACTO");
+//            requestViewHolder.viewOrdenante.setText("ORDENANTE");
+//            requestViewHolder.viewProducto.setText("PRODUCTO");
 
         } else if (holder instanceof RequestViewHolder) {
             // Configura la vista de datos aquí

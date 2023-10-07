@@ -15,11 +15,17 @@
     <string name="txt_cantidad_field">cantidad</string>
     <string name="txt_producto">Producto:</string>
     <string name="txt_producto_field">producto</string>
+    <string name="txt_most_products">Cantidad de productos</string>
+    <string name="hint_price">Precio:</string>
+
+
     <!-- BUTTON FIELDS  -->
     <string name="btn_create">Crear</string>
+    <string name="btn_add">Añadir</string>
     <string name="menu_producto">Nuevo producto 📃</string>
     <string name="menu_pedido">Nuevo pedido ✔️</string>
     <string name="title_activity_create_product">CreateProductActivity</string>
+    <string name="btn_generate_xlsx">Generar archivo excel</string>
 
     <!-- Headers    -->
     <string name="h_pedidos">Pedidos</string>

@@ -23,36 +23,43 @@ public class CreateProductActivity extends AppCompatActivity {
 
         txtNombre = findViewById(R.id.txt_name);
         btnGuardar = findViewById(R.id.btnCreate);
+        btnGuardar.setOnClickListener(CreateonClickListener);
 
-        btnGuardar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try {
-                    ProductRepository productRepository =
-                            new ProductRepository(CreateProductActivity.this);
-
-                    long result = productRepository.insertarProducto(txtNombre.getText().toString());
-
-                    if (result > 0){
-                        Toast.makeText(CreateProductActivity.this,
-                                "Producto registrado. 😎", Toast.LENGTH_SHORT).show();
-                        cleanFields();
-                    }
-                    else {
-                        Toast.makeText(CreateProductActivity.this,
-                                "No se pudo registrar el producto. 🥲", Toast.LENGTH_SHORT).show();
-                    }
-                } catch (Exception e){
-                    System.out.println(e.getMessage());
-                }
-            }
-
-
-        });
     }
+
+    View.OnClickListener CreateonClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+
+            try {
+                ProductRepository productRepository =
+                        new ProductRepository(CreateProductActivity.this);
+
+                long result = productRepository.insertarProducto(txtNombre.getText().toString());
+
+                if (result > 0){
+                    Toast.makeText(CreateProductActivity.this,
+                            "Producto registrado. 😎", Toast.LENGTH_SHORT).show();
+                    cleanFields();
+                }
+                else {
+                    Toast.makeText(CreateProductActivity.this,
+                            "No se pudo registrar el producto. 🥲", Toast.LENGTH_SHORT).show();
+                }
+            } catch (Exception e){
+                System.out.println(e.getMessage());
+            }
+        }
+
+
+    };
 
     private void cleanFields(){
         txtNombre.setText("");
+    }
+
+    private void fillTableProducts(){
+
     }
 
 }

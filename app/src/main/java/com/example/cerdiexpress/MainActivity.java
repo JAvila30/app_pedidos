@@ -1,11 +1,5 @@
 package com.example.cerdiexpress;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -21,31 +15,52 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import com.example.cerdiexpress.activities.CreateProductActivity;
 import com.example.cerdiexpress.activities.RequestCreateActivity;
-import com.example.cerdiexpress.adapter.recycle.RequestListAdapter;
-import com.example.cerdiexpress.adapter.recycle.RequestListAdapterCopy;
 import com.example.cerdiexpress.db.DbHelper;
+import com.example.cerdiexpress.db.entities.Product;
 import com.example.cerdiexpress.db.entities.Request;
+import com.example.cerdiexpress.db.repository.ProductRepository;
 import com.example.cerdiexpress.db.repository.RequestRepository;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Objects;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity {
 
-    RecyclerView listRequestView;
     ArrayList<Request> requestArrayList;
+    ArrayList<Product> products;
+
+    Button btnGenerateXmls;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        btnGenerateXmls = findViewById(R.id.btnGenerateRequestXmls);
+
+        btnGenerateXmls.setOnClickListener(generateRequestExcelOnClickListener);
+
         try {
             DbHelper dbHelper = new DbHelper(this);
             SQLiteDatabase db = dbHelper.getWritableDatabase();
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e);
         }
 
@@ -54,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public boolean onCreateOptionsMenu(Menu menu){
+    public boolean onCreateOptionsMenu(Menu menu) {
 
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.menu_main, menu);
@@ -62,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    public boolean onOptionsItemSelected(MenuItem menuItem){
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
 
         if (menuItem.getItemId() == R.id.menuProductoId) {
             newProduct();
@@ -74,34 +89,35 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(menuItem);
     }
 
-    private void newProduct(){
+    private void newProduct() {
         Intent intent = new Intent(this, CreateProductActivity.class);
 
         startActivity(intent);
     }
 
-    private void newRequest(){
+    private void newRequest() {
         Intent intent = new Intent(this, RequestCreateActivity.class);
 
         startActivity(intent);
     }
+
     @Override
-    protected void onResume(){
+    protected void onResume() {
         super.onResume();
 
         fillTableRequest();
+        fillMosProductsTable();
     }
 
-    private void fillTableRequest(){
+    private void fillTableRequest() {
         RequestRepository requestRepository = new RequestRepository(MainActivity.this);
         TableLayout tb = findViewById(R.id.tMain);
 
         requestArrayList = requestRepository.getRequests();
-
         tb.removeAllViews();
 
         TextView hId = new TextView(this),
-                hNombre= new TextView(this),
+                hNombre = new TextView(this),
                 hProducto = new TextView(this),
                 hCandtidad = new TextView(this),
                 hOrdenante = new TextView(this),
@@ -122,12 +138,12 @@ public class MainActivity extends AppCompatActivity {
          *
          * Add padding
          * */
-        hContacto.setPadding(0,0,10,0);
-        hOrdenante.setPadding(0,0,10,0);
-        hProducto.setPadding(0,0,10,0);
-        hCandtidad.setPadding(0,0,10,0);
-        hNombre.setPadding(0,0,10,0);
-        hId.setPadding(0,0,10,0);
+        hContacto.setPadding(0, 0, 10, 0);
+        hOrdenante.setPadding(0, 0, 10, 0);
+        hProducto.setPadding(0, 0, 10, 0);
+        hCandtidad.setPadding(0, 0, 10, 0);
+        hNombre.setPadding(0, 0, 10, 0);
+        hId.setPadding(0, 0, 10, 0);
 
 
         TableRow hRow = new TableRow(this);
@@ -142,12 +158,12 @@ public class MainActivity extends AppCompatActivity {
 
         tb.addView(hRow);
 
-        for (Request elemento : requestArrayList){
+        for (Request elemento : requestArrayList) {
 
             TableRow row = new TableRow(this);
 
             TextView id = new TextView(this),
-                    nombre= new TextView(this),
+                    nombre = new TextView(this),
                     producto = new TextView(this),
                     candtidad = new TextView(this),
                     ordenante = new TextView(this),
@@ -165,18 +181,18 @@ public class MainActivity extends AppCompatActivity {
             candtidad.setText(Integer.toString(elemento.getCantidad()));
 
             /*
-            *
-            * Add padding
-            * */
-            producto.setPadding(0,0,10,0);
-            id.setPadding(0,0,10,0);
-            nombre.setPadding(0,0,10,0);
-            candtidad.setPadding(0,0,10,0);
-            ordenante.setPadding(0,0,10,0);
-            contacto.setPadding(0,0,10,0);
+             *
+             * Add padding
+             * */
+            producto.setPadding(0, 0, 10, 0);
+            id.setPadding(0, 0, 10, 0);
+            nombre.setPadding(0, 0, 10, 0);
+            candtidad.setPadding(0, 0, 10, 0);
+            ordenante.setPadding(0, 0, 10, 0);
+            contacto.setPadding(0, 0, 10, 0);
 
             Button btnDelete = new Button(this),
-                    btnFinish = new Button(this) ;
+                    btnFinish = new Button(this);
 
             btnDelete.setText(R.string.btn_delete);
             btnDelete.setId(R.id.btn_delete);
@@ -204,8 +220,10 @@ public class MainActivity extends AppCompatActivity {
             tb.addView(row);
         }
 
-        if (!requestArrayList.isEmpty()){Toast.makeText(this, "Cantidad de pedidos: "+
-                requestArrayList.size(),Toast.LENGTH_SHORT).show();}
+        if (!requestArrayList.isEmpty()) {
+            Toast.makeText(this, "Cantidad de pedidos: " +
+                    requestArrayList.size(), Toast.LENGTH_SHORT).show();
+        }
 
     }
 
@@ -216,14 +234,104 @@ public class MainActivity extends AppCompatActivity {
             RequestRepository db = new RequestRepository(MainActivity.this);
             int requestId = (int) view.getTag();
 
-            if (R.id.btn_delete == view.getId()){
+            if (R.id.btn_delete == view.getId()) {
                 db.deleteRequest(requestId);
-                Toast.makeText(MainActivity.this,"Pedido eliminado ❌, id: " + requestId ,Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Pedido eliminado ❌, id: " + requestId, Toast.LENGTH_SHORT).show();
                 fillTableRequest();
+                fillMosProductsTable();
             } else if (R.id.btn_finish == view.getId()) {
-
-                Toast.makeText(MainActivity.this,"Pedido finalizado 🎉, id: " + requestId ,Toast.LENGTH_SHORT).show();
+                fillTableRequest();
+                fillMosProductsTable();
+                Toast.makeText(MainActivity.this, "Pedido finalizado 🎉, id: " + requestId, Toast.LENGTH_SHORT).show();
             }
         }
     };
+
+    private void fillMosProductsTable() {
+        ProductRepository productRepository = new ProductRepository(this);
+        TableLayout tbMostProducts = findViewById(R.id.tMosProducts);
+        tbMostProducts.removeAllViews();
+
+        products = productRepository.getProducts();
+        if (!requestArrayList.isEmpty()) {
+
+            AtomicReference<TableRow> tbRowItem = new AtomicReference<> (new TableRow(this));
+            AtomicReference<TableRow> tbRowHeader = new AtomicReference<> (new TableRow(this));
+            AtomicReference<TextView> tvItem = new AtomicReference<>(new TextView(this));
+            AtomicReference<TextView> tvHeader = new AtomicReference<>(new TextView(this));
+
+            products.forEach(product -> {
+                List<Request> filterRequest =
+                        requestArrayList.stream().filter(
+                                        internalRequest ->
+                                                product.getName().equals(internalRequest.getProducto()))
+                                .collect(Collectors.toList());
+                AtomicInteger quantity = new AtomicInteger();
+                filterRequest.forEach(e -> quantity.addAndGet(e.getCantidad()));
+
+                if(quantity.get() > 0) {
+                    tvHeader.set(new TextView(this));
+                    tvItem.set(new TextView(this));
+
+                    tvHeader.get().setPadding(0,0,10,0);
+                    tvItem.get().setPadding(0,0,10,0);
+
+                    tvHeader.get().setText(product.getName());
+                    tvItem.get().setText(Integer.toString(quantity.get()));
+
+                    tbRowHeader.get().addView(tvHeader.get());
+                    tbRowItem.get().addView(tvItem.get());
+                }
+
+            });
+
+            tbMostProducts.addView(tbRowHeader.get());
+            tbMostProducts.addView(tbRowItem.get());
+        }
+    }
+
+    private void exportToExcel(TableLayout tableLayout) {
+        // Crear un nuevo libro de Excel
+        Workbook workbook = new XSSFWorkbook();
+        // Crear una hoja en el libro
+        Sheet sheet = workbook.createSheet("pedidos");
+
+        int rowCount = tableLayout.getChildCount();
+
+        // Recorrer las filas de la tabla
+        for (int i = 0; i < rowCount; i++) {
+            TableRow row = (TableRow) tableLayout.getChildAt(i);
+            Row excelRow = sheet.createRow(i);
+
+            int columnCount = row.getChildCount();
+
+            // Recorrer las celdas de la fila
+            for (int j = 0; j < columnCount; j++) {
+                TextView cell = (TextView) row.getChildAt(j);
+                Cell excelCell = excelRow.createCell(j);
+                excelCell.setCellValue(cell.getText().toString());
+            }
+        }
+
+        try {
+            // Guardar el libro en un archivo
+            FileOutputStream fos = new FileOutputStream(new File(getExternalFilesDir(null), "datos.xlsx"));
+            workbook.write(fos);
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    View.OnClickListener generateRequestExcelOnClickListener = new View.OnClickListener () {
+        @Override
+        public void onClick(View view) {
+            TableLayout requestTable = findViewById(R.id.tMain);
+            exportToExcel(requestTable);
+
+        }
+    };
+
+
+
 }

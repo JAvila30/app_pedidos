@@ -2,5 +2,6 @@
 <resources>
 
     <item name="btn_delete" type="id" />
+    <item name="btn_delete_request" type="id" />
     <item name="btn_finish" type="id" />
 </resources>

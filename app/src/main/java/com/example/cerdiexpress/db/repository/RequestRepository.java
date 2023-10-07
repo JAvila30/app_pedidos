@@ -76,9 +76,11 @@ public class RequestRepository extends DbHelper {
     }
 
     public void deleteRequest(int id){
+
         DbHelper dbHelper = new DbHelper(context);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.delete("pedido","_id=?",new String[]{String.valueOf(id)});
+
         db.close();
     }
 

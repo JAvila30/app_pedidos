@@ -8,6 +8,20 @@
 
     <!-- Agrega un Toolbar -->
 
+    <TextView
+        android:id="@+id/txtHeaderPedidos2"
+        android:layout_width="238dp"
+        android:layout_height="34dp"
+        android:layout_marginTop="88dp"
+        android:duplicateParentState="false"
+        android:text="@string/txt_most_products"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/scrollView2" />
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -18,12 +32,11 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
-
     <TextView
         android:id="@+id/txtHeaderPedidos"
-        android:layout_width="238dp"
-        android:layout_height="34dp"
-        android:layout_marginTop="20dp"
+        android:layout_width="81dp"
+        android:layout_height="31dp"
+        android:layout_marginTop="8dp"
         android:duplicateParentState="false"
         android:text="@string/h_pedidos"
         android:textAlignment="center"
@@ -33,8 +46,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
-
     <ScrollView
+        android:id="@+id/scrollView2"
         android:layout_width="377dp"
         android:layout_height="214dp"
         android:layout_marginStart="16dp"
@@ -42,7 +55,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtHeaderPedidos"
-  >
+        app:layout_constraintVertical_bias="0.051">
 
         <HorizontalScrollView
             android:id="@+id/hView"
@@ -54,15 +67,51 @@
                 android:id="@+id/tMain"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="1dp" >
+                android:layout_marginTop="1dp">
 
-<!--                <TableRow-->
-<!--                    android:id="@+id/tId"-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="match_parent"-->
-<!--                    android:paddingRight="20dp"/>-->
+                <!--                <TableRow-->
+                <!--                    android:id="@+id/tId"-->
+                <!--                    android:layout_width="match_parent"-->
+                <!--                    android:layout_height="match_parent"-->
+                <!--                    android:paddingRight="20dp"/>-->
             </TableLayout>
         </HorizontalScrollView>
     </ScrollView>
+
+    <ScrollView
+        android:layout_width="366dp"
+        android:layout_height="114dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.488"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtHeaderPedidos2"
+        app:layout_constraintVertical_bias="0.108">
+
+        <HorizontalScrollView
+            android:id="@+id/hView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TableLayout
+                android:id="@+id/tMosProducts"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent">
+
+            </TableLayout>
+        </HorizontalScrollView>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/btnGenerateRequestXmls"
+        android:layout_width="289dp"
+        android:layout_height="56dp"
+        android:text="@string/btn_generate_xlsx"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@+id/txtHeaderPedidos2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/scrollView2"
+        app:layout_constraintVertical_bias="0.418" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

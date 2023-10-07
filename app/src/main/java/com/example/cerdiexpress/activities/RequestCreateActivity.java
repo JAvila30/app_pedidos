@@ -1,10 +1,7 @@
 package com.example.cerdiexpress.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -13,12 +10,16 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.cerdiexpress.R;
 import com.example.cerdiexpress.adapter.spinner.ProductArrayAdapter;
 import com.example.cerdiexpress.db.entities.Product;
 import com.example.cerdiexpress.db.repository.ProductRepository;
 import com.example.cerdiexpress.db.repository.RequestRepository;
 import com.example.cerdiexpress.enums.HeaderRequestEnum;
+import com.example.cerdiexpress.utils.IValidateFields;
+import com.example.cerdiexpress.utils.impl.ValidateFieldsImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,11 +35,14 @@ public class RequestCreateActivity extends AppCompatActivity {
     Button btnGuardar;
     Button btnAdd;
     TableLayout tbRequest;
+    private IValidateFields iValidateFields;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_request_create);
+
+        iValidateFields = new ValidateFieldsImpl();
 
         txtNombre = findViewById(R.id.txtNombre);
         txtContacto = findViewById(R.id.txtContacto);
@@ -51,6 +55,7 @@ public class RequestCreateActivity extends AppCompatActivity {
 
         fillSpinner(spinnerProducts);
 
+
         btnGuardar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -58,38 +63,46 @@ public class RequestCreateActivity extends AppCompatActivity {
                     RequestRepository productRepository =
                             new RequestRepository(RequestCreateActivity.this);
 
-                    long result = productRepository.insertarPedido(txtNombre.getText().toString(),
-                            Integer.parseInt(txtCantidad.getText().toString()) ,
-                            ((Product) spinnerProducts.getSelectedItem()).getName(),
-                            txtOrdenante.getText().toString(),
-                            txtContacto.getText().toString());
+                    List<TextView> itemsToSave = new ArrayList<>();
 
-                    if (result > 0){
-                        Toast.makeText(RequestCreateActivity.this,
-                                "Producto registrado. 😎", Toast.LENGTH_SHORT).show();
-                        cleanFields();
+                    itemsToSave.add(txtNombre);
+                    itemsToSave.add(txtCantidad);
+
+                    if (iValidateFields.validateTextView(itemsToSave, RequestCreateActivity.this)) {
+                        long result = productRepository.insertarPedido(txtNombre.getText().toString(),
+                                Integer.parseInt(txtCantidad.getText().toString()),
+                                ((Product) spinnerProducts.getSelectedItem()).getName(),
+                                txtOrdenante.getText().toString(),
+                                txtContacto.getText().toString());
+
+                        if (result > 0) {
+                            cleanTableRequestList();
+                            cleanFields();
+                            Toast.makeText(RequestCreateActivity.this,
+                                    "Productos registrados.😎", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(RequestCreateActivity.this,
+                                    "No se pudo registrar los productos.🥲", Toast.LENGTH_SHORT).show();
+                        }
                     }
-                    else {
-                        Toast.makeText(RequestCreateActivity.this,
-                                "No se pudo registrar el producto. 🥲", Toast.LENGTH_SHORT).show();
-                    }
-                } catch (Exception e){
+
+
+                } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
             }
-
-
         });
+
     }
 
-    private void cleanFields(){
+    private void cleanFields() {
         txtNombre.setText("");
         txtOrdenante.setText("");
         txtContacto.setText("");
-        txtCantidad.setText(0);
+        txtCantidad.setText(null);
     }
 
-    private void fillSpinner(Spinner spinner){
+    private void fillSpinner(Spinner spinner) {
         ProductRepository productRepository = new ProductRepository
                 (RequestCreateActivity.this);
 
@@ -103,10 +116,11 @@ public class RequestCreateActivity extends AppCompatActivity {
         spinner.setAdapter(adapter);
     }
 
-
     View.OnClickListener btnAddRequestOnclickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            List<TextView> textViewList = new ArrayList<>();
+
             tbRequest = findViewById(R.id.tbRequests);
 
             txtNombre = findViewById(R.id.txtNombre);
@@ -115,94 +129,171 @@ public class RequestCreateActivity extends AppCompatActivity {
             txtCantidad = findViewById(R.id.txtCantidad);
             spinnerProducts = findViewById(R.id.spinnerProduct);
 
-            TextView tvHNombre = new TextView(RequestCreateActivity.this),
-                    tvHContacto = new TextView(RequestCreateActivity.this),
-                    tvHOrdenante = new TextView(RequestCreateActivity.this),
-                    tvHCantiad = new TextView(RequestCreateActivity.this),
-                    tvHProducto = new TextView(RequestCreateActivity.this);
+            textViewList.add(txtCantidad);
 
-            int rowCount = tbRequest.getChildCount();
+            if (iValidateFields.validateTextView(textViewList, RequestCreateActivity.this)) {
 
-            if (rowCount == 0) {
+                TextView tvHIndice = new TextView(RequestCreateActivity.this),
+                        tvHCantiad = new TextView(RequestCreateActivity.this),
+                        tvHProducto = new TextView(RequestCreateActivity.this);
 
-                tvHNombre.setText("Item");
-                tvHContacto.setText(HeaderRequestEnum.Contacto.getField());
-                tvHOrdenante.setText(HeaderRequestEnum.Ordenante.getField());
-                tvHCantiad.setText(HeaderRequestEnum.Cantidad.getField());
-                tvHProducto.setText(HeaderRequestEnum.Producto.getField());
+                int rowCount = tbRequest.getChildCount();
 
-                tvHNombre.setPadding(0,0,30,0);
-                tvHProducto.setPadding(0,0,30,0);
-                tvHCantiad.setPadding(0,0,30,0);
+                if (rowCount == 0) {
 
-                //Create table headers
-                TableRow tbHeader = new TableRow(RequestCreateActivity.this);
+                    tvHIndice.setText("Item");
+                    tvHCantiad.setText(HeaderRequestEnum.Cantidad.getField());
+                    tvHProducto.setText(HeaderRequestEnum.Producto.getField());
 
-                tbHeader.addView(tvHNombre);
-                tbHeader.addView(tvHProducto);
-                tbHeader.addView(tvHCantiad);
+                    tvHIndice.setPadding(0, 0, 30, 0);
+                    tvHProducto.setPadding(0, 0, 30, 0);
+                    tvHCantiad.setPadding(0, 0, 30, 0);
 
-                tbRequest.addView(tbHeader);
-            }else{
-                TextView indice = new TextView(RequestCreateActivity.this);
+                    //Create table headers
+                    TableRow tbHeader = new TableRow(RequestCreateActivity.this);
+
+                    tbHeader.addView(tvHIndice);
+                    tbHeader.addView(tvHProducto);
+                    tbHeader.addView(tvHCantiad);
+                    tbRequest.addView(tbHeader);
+
+//               se a;ade el primer registro.
+                    TableRow tbRow = new TableRow(RequestCreateActivity.this);
+                    Button btnDelete = new Button(RequestCreateActivity.this);
+                    TextView indice = new TextView(RequestCreateActivity.this),
+                            tvCantidad = new TextView(RequestCreateActivity.this),
+                            tvProducto = new TextView(RequestCreateActivity.this);
+
+                    int indexItem = rowCount + 1;
+                    indice.setText(Integer.toString(indexItem));
+                    tvCantidad.setText(txtCantidad.getText());
+                    tvProducto.setText(((Product) spinnerProducts.getSelectedItem()).getName());
+                    btnDelete.setId(R.id.btn_delete_request);
+                    btnDelete.setText(R.string.btn_delete);
+                    btnDelete.setOnClickListener(btnDeleteItemRequested);
+                    btnDelete.setTag(indexItem);
+
+                    indice.setPadding(0, 0, 30, 0);
+                    tvCantidad.setPadding(0, 0, 30, 0);
+                    tvProducto.setPadding(0, 0, 30, 0);
+
+                    tbRow.addView(indice);
+                    tbRow.addView(tvProducto);
+                    tbRow.addView(tvCantidad);
+                    tbRow.addView(btnDelete);
+
+                    tbRequest.addView(tbRow);
+                } else {
+
+                    TextView indice = new TextView(RequestCreateActivity.this);
+
+                    tvHCantiad.setText(txtCantidad.getText());
+                    tvHProducto.setText(HeaderRequestEnum.Producto.getField());
+
+                    TableRow tbRow = new TableRow(RequestCreateActivity.this);
+                    Button btnDelete = new Button(RequestCreateActivity.this);
 
 
-                tvHCantiad.setText(txtCantidad.getText());
-                tvHProducto.setText(HeaderRequestEnum.Producto.getField());
+                    tvHProducto.setText(((Product) spinnerProducts.getSelectedItem()).getName());
+                    indice.setText(Integer.toString(rowCount));
 
-                TableRow tbRow = new TableRow(RequestCreateActivity.this);
-                Button btnDelete = new Button(RequestCreateActivity.this);
+                    indice.setPadding(0, 0, 30, 0);
+                    tvHCantiad.setPadding(0, 0, 30, 0);
+                    tvHProducto.setPadding(0, 0, 30, 0);
 
-                btnDelete.setId(R.id.btn_delete_request);
-                btnDelete.setText(R.string.btn_delete);
-                btnDelete.setTag(rowCount);
+                    AtomicBoolean summarizeItemFlag = new AtomicBoolean();
 
-                tvHProducto.setText(((Product) spinnerProducts.getSelectedItem()).getName());
-                indice.setText(Integer.toString(rowCount) );
+                    for (int index = 1; index < rowCount; index++) {
+                        TableRow row = (TableRow) tbRequest.getChildAt(index);
 
-                indice.setPadding(0,0,30,0);
-                tvHCantiad.setPadding(0,0,30,0);
-                tvHProducto.setPadding(0,0,30,0);
+                        int columnCount = row.getChildCount();
 
-                List<Integer> rowToRemove = new ArrayList<>();
-                AtomicBoolean flag = new AtomicBoolean();
+                        for (int j = 0; j < columnCount; j++) {
 
-                for (int index = 1; index < rowCount; index++){
-                    TableRow row = (TableRow) tbRequest.getChildAt(index);
+                            TextView idItem = (TextView) row.getChildAt(0);
+                            TextView cantidadCell = (TextView) row.getChildAt(2);
+                            TextView nombreCell = (TextView) row.getChildAt(1);
 
-                    int columnCount = row.getChildCount();
+                            CharSequence cantidad = cantidadCell.getText();
+                            CharSequence producto = nombreCell.getText();
 
-                    for (int j = 0; j < columnCount; j++) {
+                            if (producto.equals(tvHProducto.getText()) && !summarizeItemFlag.get()) {
+                                int summarizedQuantity = Integer.parseInt(cantidad.toString())
+                                        + Integer.parseInt(txtCantidad.getText().toString());
 
-                        TextView idItem = (TextView) row.getChildAt(0);
-                        TextView cantidadCell = (TextView) row.getChildAt(2);
-                        TextView nombreCell = (TextView) row.getChildAt(1);
+                                cantidadCell.setText(Integer.toString(summarizedQuantity));
 
-                        CharSequence cantidad = cantidadCell.getText();
-                        CharSequence producto = nombreCell.getText();
+                                summarizeItemFlag.set(true);
+                            }
+                        }
 
-                        if (producto.equals(tvHProducto.getText())) {
-                            int summarizedQuantity = Integer.parseInt(cantidad.toString())
-                                    + Integer.parseInt(txtCantidad.getText().toString()) ;
-                            tvHCantiad.setText(Integer.toString(summarizedQuantity));
-                            flag.set(true);
+                        btnDelete.setId(R.id.btn_delete_request);
+                        btnDelete.setText(R.string.btn_delete);
+                        if (!summarizeItemFlag.get()) {
+                            btnDelete.setOnClickListener(btnDeleteItemRequested);
+                            btnDelete.setTag(rowCount);
                         }
                     }
 
-                    if (flag.get()){rowToRemove.add(index);}
+                    if (!summarizeItemFlag.get()) {
+                        tbRow.addView(indice);
+                        tbRow.addView(tvHProducto);
+                        tbRow.addView(tvHCantiad);
+                        tbRow.addView(btnDelete);
+                        tbRequest.addView(tbRow);
+                    }
                 }
-                if (rowToRemove.size() > 0){rowToRemove.forEach(e -> tbRequest.removeViewAt(e));}
-
-                tbRow.addView(indice);
-                tbRow.addView(tvHProducto);
-                tbRow.addView(tvHCantiad);
-                tbRow.addView(btnDelete);
-
-                tbRequest.addView(tbRow);
-
             }
+
 
         }
     };
+    View.OnClickListener btnDeleteItemRequested = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            removeItemRequested(view);
+        }
+
+    };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+    }
+
+    private void removeItemRequested(View view) {
+        TableLayout tableLayout = findViewById(R.id.tbRequests);
+        final int itemId = (int) view.getTag();
+
+        for (int index = 1; index < tableLayout.getChildCount(); index++) {
+            TableRow row = (TableRow) tbRequest.getChildAt(index);
+            TextView tableItemId = ((TextView) row.getChildAt(0));
+            TextView tableItemProduct = ((TextView) row.getChildAt(1));
+            int itemValue = Integer.parseInt(tableItemId.getText().toString());
+
+            if (itemId == itemValue) {
+                tableLayout.removeViewAt(index);
+                Toast.makeText(RequestCreateActivity.this, "Producto eliminado: "
+                        + tableItemProduct.getText(), Toast.LENGTH_SHORT).show();
+
+                // Se verifica que solo quede los headers y si es asi se quita la vista.
+                if (tableLayout.getChildCount() == 1) {
+                    tbRequest.removeAllViews();
+                }
+
+                break;
+            }
+        }
+    }
+
+    private void cleanTableRequestList() {
+        TableLayout tlRequestedList = findViewById(R.id.tbRequests);
+        tlRequestedList.removeAllViews();
+        for (int i = 0; i < tlRequestedList.getChildCount(); i++) {
+            TableRow row = (TableRow) tlRequestedList.getChildAt(i);
+            row.removeAllViews();
+        }
+    }
 
 }

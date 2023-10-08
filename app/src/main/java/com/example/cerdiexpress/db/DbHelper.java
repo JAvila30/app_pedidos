@@ -17,15 +17,23 @@ public class DbHelper extends SQLiteOpenHelper {
                 dbContract.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 dbContract.COLUMNA_NOMBRE + " TEXT);";
 
-        String createTablePedidoQuery = "CREATE TABLE " + dbContract.TABLA_PEDIDO + " (" +
+        String createTableProductosPedidosQuery = "CREATE TABLE " + dbContract.TABLA_PRODUCTO_PEDIDO + " (" +
                 dbContract.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                dbContract.COLUMNA_NOMBRE + " TEXT," +
+                dbContract.ORDER_ID + " TEXT," +
                 dbContract.COLUMNA_CANTIDAD + " INTEGER," +
-                dbContract.COLUMNA_CONTACTO + " TEXT," +
-                dbContract.COLUMNA_ORDENANTE + " TEXT," +
                 dbContract.COLUMNA_PRODUCTO + " TEXT);";
 
+        String createTablePedidoQuery = "CREATE TABLE " + dbContract.TABLA_PEDIDO + " (" +
+                dbContract.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                dbContract.ORDER_ID + " TEXT," +
+                dbContract.ORDER_STATUS + " TEXT," +
+                dbContract.COLUMNA_CLI_NOMBRE + " TEXT," +
+                dbContract.COLUMNA_CANTIDAD + " INTEGER," +
+                dbContract.COLUMNA_CONTACTO + " TEXT," +
+                dbContract.COLUMNA_ORDENANTE + " TEXT);";
+
         db.execSQL(createTablePedidoQuery);
+        db.execSQL(createTableProductosPedidosQuery);
         db.execSQL(createTableProductoQuery);
     }
 

@@ -1,6 +1,12 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    kotlin("plugin.lombok") version "1.8.10"
+    id("io.freefair.lombok") version "5.3.0"
+//    kotlin("kapt") version "1.8.10"
+}
+kotlinLombok {
+    lombokConfigurationFile(file("lombok.config"))
 }
 
 android {
@@ -60,7 +66,10 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("org.apache.poi:poi-ooxml:3.9")
-//    implementation("org.apache.poi:poi:5.0.0")
+    compileOnly("org.projectlombok:lombok:1.18.30")
+    annotationProcessor ("org.projectlombok:lombok:1.18.30")
+
+//    kapt("org.projectlombok:lombok:1.18.22")
 
 
     testImplementation("junit:junit:4.13.2")

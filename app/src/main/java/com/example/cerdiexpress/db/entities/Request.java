@@ -1,5 +1,7 @@
 package com.example.cerdiexpress.db.entities;
 
+import lombok.NoArgsConstructor;
+
 public class Request {
 
     private int id;
@@ -8,6 +10,24 @@ public class Request {
     private String contacto;
     private String producto;
     private String ordenante;
+    private String status;
+    private String orderId;
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
+    }
 
     public int getId() {
         return id;
@@ -57,33 +77,15 @@ public class Request {
         this.ordenante = ordenante;
     }
 
-    @Override
-    public String toString() {
-        return "Request{" +
-                "id=" + id +
-                ", nombre='" + nombre + '\'' +
-                ", cantidad=" + cantidad +
-                ", contacto='" + contacto + '\'' +
-                ", producto='" + producto + '\'' +
-                ", ordenante='" + ordenante + '\'' +
-                '}';
-    }
-
-    public Request(int id, String nombre, int cantidad, String contacto, String producto, String ordenante) {
-        this.id = id;
-        this.nombre = nombre;
-        this.cantidad = cantidad;
-        this.contacto = contacto;
-        this.producto = producto;
-        this.ordenante = ordenante;
-    }
-
     public Request() {
         this.id = 0;
-        this.nombre = null;
+        this.nombre = "";
         this.cantidad = 0;
-        this.contacto = null;
-        this.producto = null;
-        this.ordenante = null;
+        this.contacto = "";
+        this.producto = "";
+        this.ordenante = "";
+        this.status = "";
+        this.orderId = "";
     }
+
 }

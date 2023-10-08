@@ -6,6 +6,7 @@
     <string name="text_id_field">id</string>
     <string name="text_name">Nombre:</string>
     <string name="text_name_field">nombre</string>
+    <string name="text_status_field">estado</string>
     <string name="text_product_name_description">Nombre del producto</string>
     <string name="txt_contacto">Contacto:</string>
     <string name="txt_contacto_field">contacto</string>
@@ -33,4 +34,5 @@
     <!-- Buttons   -->
     <string name="btn_delete">eliminar</string>
     <string name="btn_finish">finalizar</string>
+    <string name="btn_details">detalle</string>
 </resources>

@@ -9,6 +9,9 @@ import com.example.cerdiexpress.db.DbHelper;
 import com.example.cerdiexpress.db.entities.Request;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class RequestRepository extends DbHelper {
     Context context;
@@ -18,32 +21,41 @@ public class RequestRepository extends DbHelper {
         this.context = context;
     }
 
-    public long insertarPedido(String nombre,
-                               int cantidad,
-                               String producto,
-                               String ordenante,
-                               String contacto ) {
+    public long insertarPedido(List<Request> itemsToSave ) {
 
-        long resultId = -1;
+        AtomicLong resultId = new AtomicLong(-1);
 
+        //Devolver estados.
         try {
             DbHelper dbHelper = new DbHelper(context);
 
             SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-            ContentValues contentValues = new ContentValues();
-            contentValues.put("nombre", nombre);
-            contentValues.put("cantidad",cantidad);
-            contentValues.put("producto",producto);
-            contentValues.put("ordenante",ordenante);
-            contentValues.put("contacto",contacto);
-            resultId = db.insert("pedido", null, contentValues);
+            ContentValues requestValues = new ContentValues();
+            ContentValues productRequestValues = new ContentValues();
+            AtomicInteger productsQuantity = new AtomicInteger();
+            itemsToSave.forEach(item -> {
+                productRequestValues.put("order_id", item.getOrderId());
+                productRequestValues.put("cantidad",item.getCantidad());
+                productRequestValues.put("producto",item.getProducto());
+
+                productsQuantity.addAndGet(item.getCantidad());
+                resultId.set(db.insert("productos_pedido", null, productRequestValues));
+            });
+            Request item = itemsToSave.get(0);
+            requestValues.put("order_id", item.getOrderId());
+            requestValues.put("cli_nombre", item.getNombre());
+            requestValues.put("ordenante",item.getOrdenante());
+            requestValues.put("contacto", item.getContacto());
+            requestValues.put("status",item.getStatus());
+            requestValues.put("cantidad", productsQuantity.get());
+            resultId.set(db.insert("pedido", null, requestValues));
 
         } catch (Exception e) {
             System.out.println(e);
         }
 
-        return resultId;
+        return resultId.get();
     }
 
     public ArrayList<Request> getRequests(){
@@ -61,11 +73,12 @@ public class RequestRepository extends DbHelper {
             do{
                 request = new Request();
                 request.setId(requestCursor.getInt(0));
-                request.setNombre(requestCursor.getString(1));
-                request.setCantidad(requestCursor.getInt(2));
-                request.setContacto(requestCursor.getString(3));
-                request.setOrdenante(requestCursor.getString(4));
-                request.setProducto(requestCursor.getString(5));
+                request.setOrderId(requestCursor.getString(1));
+                request.setStatus(requestCursor.getString(2));
+                request.setNombre(requestCursor.getString(3));
+                request.setCantidad(requestCursor.getInt(4));
+                request.setContacto(requestCursor.getString(5));
+                request.setOrdenante(requestCursor.getString(6));
 
                 products.add(request);
             }while (requestCursor.moveToNext());
@@ -75,11 +88,11 @@ public class RequestRepository extends DbHelper {
         return products;
     }
 
-    public void deleteRequest(int id){
+    public void deleteRequest(String id){
 
         DbHelper dbHelper = new DbHelper(context);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.delete("pedido","_id=?",new String[]{String.valueOf(id)});
+        db.delete("pedido","order_id=?",new String[]{String.valueOf(id)});
 
         db.close();
     }

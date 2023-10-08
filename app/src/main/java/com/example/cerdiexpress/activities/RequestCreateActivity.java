@@ -15,15 +15,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.cerdiexpress.R;
 import com.example.cerdiexpress.adapter.spinner.ProductArrayAdapter;
 import com.example.cerdiexpress.db.entities.Product;
+import com.example.cerdiexpress.db.entities.Request;
 import com.example.cerdiexpress.db.repository.ProductRepository;
 import com.example.cerdiexpress.db.repository.RequestRepository;
 import com.example.cerdiexpress.enums.HeaderRequestEnum;
+import com.example.cerdiexpress.enums.StatusRequestEnum;
+import com.example.cerdiexpress.utils.IGenerateID;
 import com.example.cerdiexpress.utils.IValidateFields;
+import com.example.cerdiexpress.utils.impl.GenerateIDImpl;
 import com.example.cerdiexpress.utils.impl.ValidateFieldsImpl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class RequestCreateActivity extends AppCompatActivity {
 
@@ -36,6 +42,8 @@ public class RequestCreateActivity extends AppCompatActivity {
     Button btnAdd;
     TableLayout tbRequest;
     private IValidateFields iValidateFields;
+
+    private IGenerateID iGenerateID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,11 +77,26 @@ public class RequestCreateActivity extends AppCompatActivity {
                     itemsToSave.add(txtCantidad);
 
                     if (iValidateFields.validateTextView(itemsToSave, RequestCreateActivity.this)) {
-                        long result = productRepository.insertarPedido(txtNombre.getText().toString(),
-                                Integer.parseInt(txtCantidad.getText().toString()),
-                                ((Product) spinnerProducts.getSelectedItem()).getName(),
-                                txtOrdenante.getText().toString(),
-                                txtContacto.getText().toString());
+
+                        iGenerateID = new GenerateIDImpl();
+
+                        final String orderId = iGenerateID.generateId();
+
+                        HashMap<HeaderRequestEnum, TextView> itemsToSaveMap = new HashMap<>();
+
+                        TextView selectedItem = new TextView(RequestCreateActivity.this);
+                        selectedItem.setText(((Product) spinnerProducts.getSelectedItem()).getName());
+
+
+                        itemsToSaveMap.put(HeaderRequestEnum.Nombre, txtNombre);
+                        itemsToSaveMap.put(HeaderRequestEnum.Cantidad, txtCantidad);
+                        itemsToSaveMap.put(HeaderRequestEnum.Ordenante, txtOrdenante);
+                        itemsToSaveMap.put(HeaderRequestEnum.Contacto, txtContacto);
+                        itemsToSaveMap.put(HeaderRequestEnum.Producto, selectedItem);
+
+                        List<Request> listToSave = processPayload(itemsToSaveMap, orderId);
+
+                        long result = productRepository.insertarPedido(listToSave);
 
                         if (result > 0) {
                             cleanTableRequestList();
@@ -183,6 +206,7 @@ public class RequestCreateActivity extends AppCompatActivity {
                     tbRow.addView(btnDelete);
 
                     tbRequest.addView(tbRow);
+
                 } else {
 
                     TextView indice = new TextView(RequestCreateActivity.this);
@@ -192,7 +216,6 @@ public class RequestCreateActivity extends AppCompatActivity {
 
                     TableRow tbRow = new TableRow(RequestCreateActivity.this);
                     Button btnDelete = new Button(RequestCreateActivity.this);
-
 
                     tvHProducto.setText(((Product) spinnerProducts.getSelectedItem()).getName());
                     indice.setText(Integer.toString(rowCount));
@@ -296,4 +319,53 @@ public class RequestCreateActivity extends AppCompatActivity {
         }
     }
 
+    private List<Request> processPayload(HashMap<HeaderRequestEnum, TextView> itemsToSave, String orderId) {
+
+        tbRequest = findViewById(R.id.tbRequests);
+
+        int rowCounts = tbRequest.getChildCount();
+
+        List<Request> listToSave = new ArrayList<>();
+
+        if (rowCounts > 0) {
+
+            for (int index = 1; index < rowCounts; index++) {
+
+                Request request = new Request();
+
+                TableRow row = (TableRow) tbRequest.getChildAt(index);
+
+                TextView productCell = (TextView) row.getChildAt(1);
+                TextView quantityCell = (TextView) row.getChildAt(2);
+
+                String productValue = productCell.getText().toString();
+                int quantityValue = Integer.parseInt(quantityCell.getText().toString());
+
+                request.setOrdenante(itemsToSave.get(HeaderRequestEnum.Ordenante).getText().toString());
+                request.setNombre(itemsToSave.get(HeaderRequestEnum.Nombre).getText().toString());
+                request.setContacto(itemsToSave.get(HeaderRequestEnum.Contacto).getText().toString());
+                request.setProducto(productValue);
+                request.setCantidad(quantityValue);
+                request.setOrderId(orderId);
+                request.setStatus(StatusRequestEnum.PENDING.getKey());
+
+                listToSave.add(request);
+            }
+        } else {
+            Request request = new Request();
+
+            int quantityValue = Integer.parseInt(itemsToSave.get(HeaderRequestEnum.Cantidad).getText().toString());
+            request.setOrdenante(itemsToSave.get(HeaderRequestEnum.Ordenante).getText().toString());
+            request.setNombre(itemsToSave.get(HeaderRequestEnum.Nombre).getText().toString());
+            request.setContacto(itemsToSave.get(HeaderRequestEnum.Contacto).getText().toString());
+            request.setProducto(itemsToSave.get(HeaderRequestEnum.Producto).getText().toString());
+            request.setCantidad(quantityValue);
+            request.setOrderId(orderId);
+            request.setStatus(StatusRequestEnum.PENDING.getKey());
+
+            listToSave.add(request);
+        }
+
+        return listToSave;
+    }
 }

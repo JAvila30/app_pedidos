@@ -5,8 +5,11 @@ public enum HeaderRequestEnum {
     Producto("Producto", "Campo producto"),
     Nombre("Nombre", "Campo nombre"),
     Cantidad("Cantidad", "Campo producto"),
-    Ordenante("Producto", "Campo producto"),
-    Estado("Estado", "campo que representa el estado");
+    Ordenante("Ordenante", "Campo producto"),
+    Estado("Estado", "campo que representa el estado"),
+    OrderId("OrderId", "");
+
+
     private String field;
     private String description;
 
